@@ -24,6 +24,9 @@ resources:
               environment: ${var.environment}
               payment_event_count: "1000"
               customer_change_count: "200"
+              authentication_event_count: "500"
+              device_event_count: "500"
+              access_event_count: "200"
           environment_key: default
         - task_key: refresh_bronze_pipeline
           depends_on:

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aegispay.example/contracts/device_intelligence_event.schema.json",
+  "title": "AegisPay Device Intelligence Event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "device_event_id", "observed_at", "customer_id", "device_id",
+    "ip_address", "country", "city", "latitude", "longitude",
+    "network_type", "is_vpn", "is_tor", "device_trust",
+    "source_sequence", "is_synthetic", "scenario_label"
+  ],
+  "properties": {
+    "device_event_id": {"type": "string", "minLength": 1},
+    "observed_at": {"type": "string", "format": "date-time"},
+    "customer_id": {"type": "string", "minLength": 1},
+    "device_id": {"type": "string", "minLength": 1},
+    "ip_address": {"type": "string", "minLength": 1},
+    "country": {"type": "string", "minLength": 2, "maxLength": 2},
+    "city": {"type": "string", "minLength": 1},
+    "latitude": {"type": "number", "minimum": -90, "maximum": 90},
+    "longitude": {"type": "number", "minimum": -180, "maximum": 180},
+    "network_type": {"type": "string", "enum": ["RESIDENTIAL", "CORPORATE", "MOBILE", "VPN", "TOR"]},
+    "is_vpn": {"type": "boolean"},
+    "is_tor": {"type": "boolean"},
+    "device_trust": {"type": "string", "enum": ["TRUSTED", "UNKNOWN", "BLOCKED"]},
+    "source_sequence": {"type": "integer", "minimum": 1},
+    "is_synthetic": {"const": true},
+    "scenario_label": {"type": "string", "enum": ["LEGITIMATE", "IMPOSSIBLE_TRAVEL", "ANONYMIZED_NETWORK"]}
+  }
+}

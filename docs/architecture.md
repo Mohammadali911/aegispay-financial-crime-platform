@@ -37,6 +37,17 @@ with deterministic hashes of protected identifiers, and emits aggregated
 customer-account, account-merchant, and customer-device edges for downstream
 graph features. The workflow refreshes Silver only after Bronze succeeds.
 
+## Behavioral and access-risk telemetry
+
+Milestone 5 adds versioned authentication, device/IP intelligence, and access-audit
+contracts. Deterministic synthetic sources exercise repeated login failures, MFA
+bypass, headless clients, impossible travel, VPN/Tor use, untrusted devices,
+privileged after-hours activity, and anomalous bulk data access. Bronze applies
+domain-specific expectations and quarantine reason codes. Silver deduplicates each
+stream and publishes customer behavioral features plus employee/service access-risk
+signals with bounded scores and human-readable reason codes. These features are
+inputs to decisioning; synthetic scenario labels remain validation-only fields.
+
 ## Environments
 
 - `dev`: developer-owned resources, synthetic data, and paused schedules.

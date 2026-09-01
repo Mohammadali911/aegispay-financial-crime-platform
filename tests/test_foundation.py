@@ -21,6 +21,9 @@ class FoundationTests(unittest.TestCase):
             "src/notebooks/01_generate_synthetic_landing.py",
             "src/pipelines/bronze.py",
             "src/pipelines/silver.py",
+            "contracts/authentication_event.schema.json",
+            "contracts/device_intelligence_event.schema.json",
+            "contracts/access_event.schema.json",
         ]
         self.assertTrue(all((ROOT / path).is_file() for path in required))
 
@@ -39,6 +42,12 @@ class FoundationTests(unittest.TestCase):
             "quarantine_customer_changes",
             "create_auto_cdc_flow",
             "stored_as_scd_type=\"1\"",
+            "bronze_authentication_events",
+            "quarantine_authentication_events",
+            "bronze_device_intelligence_events",
+            "quarantine_device_intelligence_events",
+            "bronze_access_events",
+            "quarantine_access_events",
         ]
         self.assertTrue(all(control in pipeline for control in required_controls))
 
@@ -50,12 +59,18 @@ class FoundationTests(unittest.TestCase):
             "silver_transaction_edges",
             "transaction_count",
             "labeled_risk_event_count",
+            "silver_customer_behavioral_features",
+            "behavioral_risk_score",
+            "REPEATED_LOGIN_FAILURES",
+            "IMPOSSIBLE_TRAVEL",
+            "silver_access_risk_signals",
+            "PRIVILEGED_AFTER_HOURS",
         ]
         self.assertTrue(all(control in pipeline for control in required_controls))
 
     def test_synthetic_sources_are_append_only(self):
         notebook = (ROOT / "src/notebooks/01_generate_synthetic_landing.py").read_text()
-        self.assertEqual(2, notebook.count('.mode("append")'))
+        self.assertEqual(5, notebook.count('.mode("append")'))
 
 
 if __name__ == "__main__":

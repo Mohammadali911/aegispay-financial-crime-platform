@@ -71,7 +71,7 @@ The demonstration will report fraud recall, false-positive rate, precision at in
 
 ## Data contracts and synthetic scenarios
 
-Versioned JSON contracts define payment events and customer CDC changes. The deterministic generator in `src/aegispay/synthetic.py` creates privacy-safe labeled scenarios for legitimate activity, payment fraud, account takeover, mule networks, and layering. These labels exist for engineering validation and must not be presented as real-world model results.
+Versioned JSON contracts define payments, customer CDC changes, authentication activity, device/IP intelligence, and employee or service access events. The deterministic generator in `src/aegispay/synthetic.py` creates privacy-safe labeled scenarios for legitimate activity, payment fraud, account takeover, brute force, impossible travel, anonymized networks, mule networks, layering, privileged-access abuse, and anomalous bulk data access. These labels exist for engineering validation and must not be presented as real-world model results.
 
 ## Status
 
@@ -79,3 +79,5 @@ Versioned JSON contracts define payment events and customer CDC changes. The det
 - Milestone 2 — data contracts and synthetic financial events: complete in DEV
 - Milestone 3 — Bronze streaming ingestion, expectations, quarantine, and customer AUTO CDC: implemented
 - Milestone 4 — Silver deduplication, conformed identities, and transaction-network edges: implemented
+- Milestone 5A — authentication, device/IP, and access telemetry contracts and Bronze ingestion: implemented
+- Milestone 5B — behavioral, geographic, anonymized-network, and privileged-access risk features with reason codes: implemented

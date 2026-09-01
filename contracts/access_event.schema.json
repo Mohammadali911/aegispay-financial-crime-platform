@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aegispay.example/contracts/access_event.schema.json",
+  "title": "AegisPay Access Audit Event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "access_event_id", "event_timestamp", "actor_id", "actor_type",
+    "role_name", "source_ip", "resource_type", "resource_name", "action",
+    "access_result", "rows_accessed", "privileged_access",
+    "outside_business_hours", "source_sequence", "is_synthetic", "scenario_label"
+  ],
+  "properties": {
+    "access_event_id": {"type": "string", "minLength": 1},
+    "event_timestamp": {"type": "string", "format": "date-time"},
+    "actor_id": {"type": "string", "minLength": 1},
+    "actor_type": {"type": "string", "enum": ["CUSTOMER", "EMPLOYEE", "SERVICE_PRINCIPAL"]},
+    "role_name": {"type": "string", "minLength": 1},
+    "source_ip": {"type": "string", "minLength": 1},
+    "resource_type": {"type": "string", "minLength": 1},
+    "resource_name": {"type": "string", "minLength": 1},
+    "action": {"type": "string", "minLength": 1},
+    "access_result": {"type": "string", "enum": ["ALLOWED", "DENIED"]},
+    "rows_accessed": {"type": "integer", "minimum": 0},
+    "privileged_access": {"type": "boolean"},
+    "outside_business_hours": {"type": "boolean"},
+    "source_sequence": {"type": "integer", "minimum": 1},
+    "is_synthetic": {"const": true},
+    "scenario_label": {"type": "string", "enum": ["LEGITIMATE", "PRIVILEGED_ABUSE", "DATABASE_ANOMALY"]}
+  }
+}

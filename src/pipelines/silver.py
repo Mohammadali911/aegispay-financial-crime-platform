@@ -7,6 +7,9 @@ SOURCE_SCHEMA = spark.conf.get("aegispay.source_schema")
 
 BRONZE_PAYMENTS = f"{SOURCE_CATALOG}.{SOURCE_SCHEMA}.bronze_payment_events"
 BRONZE_CUSTOMERS = f"{SOURCE_CATALOG}.{SOURCE_SCHEMA}.bronze_customer_current"
+BRONZE_AUTH = f"{SOURCE_CATALOG}.{SOURCE_SCHEMA}.bronze_authentication_events"
+BRONZE_DEVICE = f"{SOURCE_CATALOG}.{SOURCE_SCHEMA}.bronze_device_intelligence_events"
+BRONZE_ACCESS = f"{SOURCE_CATALOG}.{SOURCE_SCHEMA}.bronze_access_events"
 
 SILVER_PAYMENT_RULES = {
     "event_identity_complete": "event_id IS NOT NULL AND transaction_id IS NOT NULL",
@@ -139,4 +142,153 @@ def silver_transaction_edges():
                 F.when(F.col("scenario_label") != "LEGITIMATE", 1).otherwise(0)
             ).alias("labeled_risk_event_count"),
         )
+    )
+
+
+@dp.table(
+    name="silver_authentication_events",
+    comment="Deduplicated authentication and MFA activity for behavioral detection.",
+    table_properties={"quality": "silver", "aegispay.domain": "authentication"},
+)
+@dp.expect_or_fail("authentication_identity_complete", "auth_event_id IS NOT NULL AND customer_id IS NOT NULL")
+def silver_authentication_events():
+    return (
+        spark.readStream.table(BRONZE_AUTH)
+        .withWatermark("event_timestamp", "1 day")
+        .dropDuplicatesWithinWatermark(["auth_event_id"])
+        .withColumn("is_failed_login", F.col("auth_result") == "FAILURE")
+        .withColumn("is_mfa_bypass", F.col("mfa_result") == "BYPASSED")
+        .withColumn("is_headless_client", F.lower("user_agent").contains("headless"))
+        .withColumn("_conformed_at", F.current_timestamp())
+    )
+
+
+@dp.table(
+    name="silver_device_intelligence_events",
+    comment="Deduplicated device, IP, network, and geographic observations.",
+    table_properties={"quality": "silver", "aegispay.domain": "device-intelligence"},
+)
+@dp.expect_or_fail("device_identity_complete", "device_event_id IS NOT NULL AND customer_id IS NOT NULL")
+def silver_device_intelligence_events():
+    return (
+        spark.readStream.table(BRONZE_DEVICE)
+        .withWatermark("observed_at", "1 day")
+        .dropDuplicatesWithinWatermark(["device_event_id"])
+        .withColumn("is_anonymized_network", F.col("is_vpn") | F.col("is_tor"))
+        .withColumn("is_untrusted_device", F.col("device_trust") != "TRUSTED")
+        .withColumn("_conformed_at", F.current_timestamp())
+    )
+
+
+@dp.table(
+    name="silver_access_events",
+    comment="Deduplicated employee, privileged, database, and API access audit events.",
+    table_properties={"quality": "silver", "aegispay.domain": "access-audit"},
+)
+@dp.expect_or_fail("access_identity_complete", "access_event_id IS NOT NULL AND actor_id IS NOT NULL")
+def silver_access_events():
+    return (
+        spark.readStream.table(BRONZE_ACCESS)
+        .withWatermark("event_timestamp", "1 day")
+        .dropDuplicatesWithinWatermark(["access_event_id"])
+        .withColumn("is_bulk_access", F.col("rows_accessed") >= 10000)
+        .withColumn("is_privileged_after_hours", F.col("privileged_access") & F.col("outside_business_hours"))
+        .withColumn("_conformed_at", F.current_timestamp())
+    )
+
+
+@dp.materialized_view(
+    name="silver_customer_behavioral_features",
+    comment="Explainable customer authentication, device, IP, and geographic risk features.",
+    table_properties={"quality": "silver", "aegispay.feature_group": "behavioral-risk"},
+)
+def silver_customer_behavioral_features():
+    auth = (
+        spark.read.table("silver_authentication_events")
+        .groupBy("customer_id")
+        .agg(
+            F.count("*").alias("authentication_count"),
+            F.sum(F.col("is_failed_login").cast("long")).alias("failed_login_count"),
+            F.sum(F.col("is_mfa_bypass").cast("long")).alias("mfa_bypass_count"),
+            F.sum(F.col("is_headless_client").cast("long")).alias("headless_client_count"),
+            F.countDistinct("device_id").alias("authentication_device_count"),
+            F.countDistinct("ip_address").alias("authentication_ip_count"),
+            F.max("event_timestamp").alias("last_authentication_at"),
+        )
+    )
+    devices = (
+        spark.read.table("silver_device_intelligence_events")
+        .groupBy("customer_id")
+        .agg(
+            F.countDistinct("device_id").alias("observed_device_count"),
+            F.countDistinct("country").alias("observed_country_count"),
+            F.sum(F.col("is_anonymized_network").cast("long")).alias("anonymized_network_count"),
+            F.sum(F.col("is_untrusted_device").cast("long")).alias("untrusted_device_count"),
+            F.sum((F.col("scenario_label") == "IMPOSSIBLE_TRAVEL").cast("long")).alias("impossible_travel_count"),
+            F.max("observed_at").alias("last_device_observation_at"),
+        )
+    )
+    return (
+        auth.join(devices, "customer_id", "full")
+        .fillna(0, subset=[
+            "authentication_count", "failed_login_count", "mfa_bypass_count", "headless_client_count",
+            "authentication_device_count", "authentication_ip_count", "observed_device_count",
+            "observed_country_count", "anonymized_network_count", "untrusted_device_count",
+            "impossible_travel_count",
+        ])
+        .withColumn(
+            "behavioral_risk_score",
+            F.least(
+                F.lit(100),
+                F.col("failed_login_count") * 4
+                + F.col("mfa_bypass_count") * 30
+                + F.col("headless_client_count") * 10
+                + F.col("anonymized_network_count") * 15
+                + F.col("untrusted_device_count") * 10
+                + F.col("impossible_travel_count") * 35,
+            ),
+        )
+        .withColumn(
+            "reason_codes",
+            F.array_compact(F.array(
+                F.when(F.col("failed_login_count") >= 3, F.lit("REPEATED_LOGIN_FAILURES")),
+                F.when(F.col("mfa_bypass_count") > 0, F.lit("MFA_BYPASS")),
+                F.when(F.col("headless_client_count") > 0, F.lit("HEADLESS_CLIENT")),
+                F.when(F.col("anonymized_network_count") > 0, F.lit("VPN_OR_TOR")),
+                F.when(F.col("untrusted_device_count") > 0, F.lit("UNTRUSTED_DEVICE")),
+                F.when(F.col("impossible_travel_count") > 0, F.lit("IMPOSSIBLE_TRAVEL")),
+            )),
+        )
+        .withColumn("feature_calculated_at", F.current_timestamp())
+    )
+
+
+@dp.materialized_view(
+    name="silver_access_risk_signals",
+    comment="Explainable privileged-access and database/API anomaly signals.",
+    table_properties={"quality": "silver", "aegispay.feature_group": "insider-access-risk"},
+)
+def silver_access_risk_signals():
+    return (
+        spark.read.table("silver_access_events")
+        .groupBy("actor_id", "role_name")
+        .agg(
+            F.count("*").alias("access_event_count"),
+            F.sum(F.col("is_bulk_access").cast("long")).alias("bulk_access_count"),
+            F.sum(F.col("is_privileged_after_hours").cast("long")).alias("privileged_after_hours_count"),
+            F.max("rows_accessed").alias("maximum_rows_accessed"),
+            F.max("event_timestamp").alias("last_access_at"),
+        )
+        .withColumn(
+            "access_risk_score",
+            F.least(F.lit(100), F.col("bulk_access_count") * 25 + F.col("privileged_after_hours_count") * 40),
+        )
+        .withColumn(
+            "reason_codes",
+            F.array_compact(F.array(
+                F.when(F.col("bulk_access_count") > 0, F.lit("BULK_DATA_ACCESS")),
+                F.when(F.col("privileged_after_hours_count") > 0, F.lit("PRIVILEGED_AFTER_HOURS")),
+            )),
+        )
+        .withColumn("feature_calculated_at", F.current_timestamp())
     )
