@@ -76,4 +76,4 @@ Versioned JSON contracts define payment events and customer CDC changes. The det
 ## Status
 
 - Milestone 1 — platform foundation and design: complete
-- Milestone 2 — data contracts and synthetic financial events: in progress
+- Milestone 2 — data contracts and synthetic financial events: implemented; Databricks execution pending

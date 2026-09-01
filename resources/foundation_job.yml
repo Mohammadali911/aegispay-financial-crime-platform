@@ -10,9 +10,22 @@ resources:
         - task_key: validate_foundation
           notebook_task:
             notebook_path: ../src/notebooks/00_validate_foundation.py
+            base_parameters:
+              catalog: ${var.catalog}
+              environment: ${var.environment}
+          environment_key: default
+        - task_key: generate_synthetic_landing
+          depends_on:
+            - task_key: validate_foundation
+          notebook_task:
+            notebook_path: ../src/notebooks/01_generate_synthetic_landing.py
+            base_parameters:
+              catalog: ${var.catalog}
+              environment: ${var.environment}
+              payment_event_count: "1000"
+              customer_change_count: "200"
           environment_key: default
       environments:
         - environment_key: default
           spec:
             environment_version: "5"
-

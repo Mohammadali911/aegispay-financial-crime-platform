@@ -16,6 +16,7 @@ class FoundationTests(unittest.TestCase):
             "docs/architecture.md",
             "resources/foundation_job.yml",
             "src/notebooks/00_validate_foundation.py",
+            "src/notebooks/01_generate_synthetic_landing.py",
         ]
         self.assertTrue(all((ROOT / path).is_file() for path in required))
 
