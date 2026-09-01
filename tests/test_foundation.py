@@ -23,6 +23,10 @@ class FoundationTests(unittest.TestCase):
     def test_no_real_data_directories_are_versioned(self):
         self.assertFalse((ROOT / "data").exists())
 
+    def test_spark_array_indexes_are_explicit_ints(self):
+        notebook = (ROOT / "src/notebooks/01_generate_synthetic_landing.py").read_text()
+        self.assertEqual(3, notebook.count('.cast("int")'))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -71,13 +71,24 @@ payments = (
         .otherwise(F.lit(10.00) + ((F.col("event_index") * 37) % 470)),
     )
     .withColumn("amount", F.round(F.col("amount"), 2))
-    .withColumn("currency", F.element_at(F.array(*[F.lit(x) for x in ["CAD", "USD", "EUR", "GBP"]]), (F.col("event_index") % 4) + 1))
+    .withColumn(
+        "currency",
+        F.element_at(
+            F.array(*[F.lit(x) for x in ["CAD", "USD", "EUR", "GBP"]]),
+            ((F.col("event_index") % 4) + 1).cast("int"),
+        ),
+    )
     .withColumn(
         "payment_channel",
         F.when(F.col("scenario_label") == "PAYMENT_FRAUD", F.lit("ECOMMERCE"))
         .when(F.col("scenario_label") == "ACCOUNT_TAKEOVER", F.lit("MOBILE"))
         .when(F.col("scenario_label").isin("MULE_NETWORK", "LAYERING"), F.lit("TRANSFER"))
-        .otherwise(F.element_at(F.array(*[F.lit(x) for x in ["CARD_PRESENT", "ECOMMERCE", "MOBILE", "TRANSFER"]]), (F.col("event_index") % 4) + 1)),
+        .otherwise(
+            F.element_at(
+                F.array(*[F.lit(x) for x in ["CARD_PRESENT", "ECOMMERCE", "MOBILE", "TRANSFER"]]),
+                ((F.col("event_index") % 4) + 1).cast("int"),
+            )
+        ),
     )
     .withColumn("event_type", F.when(F.col("payment_channel") == "TRANSFER", F.lit("TRANSFER")).otherwise(F.lit("AUTHORISATION")))
     .withColumn("is_synthetic", F.lit(True))
@@ -100,7 +111,13 @@ customer_changes = (
     .withColumn("operation", F.when(F.col("change_index") < customer_change_count // 2, F.lit("INSERT")).otherwise(F.lit("UPDATE")))
     .withColumn("customer_id", F.format_string("cus_%08d", F.col("customer_slot")))
     .withColumn("risk_segment", F.when((F.col("change_index") % 11) == 0, F.lit("HIGH")).otherwise(F.lit("LOW")))
-    .withColumn("country", F.element_at(F.array(*[F.lit(x) for x in ["CA", "US", "GB", "DE"]]), (F.col("change_index") % 4) + 1))
+    .withColumn(
+        "country",
+        F.element_at(
+            F.array(*[F.lit(x) for x in ["CA", "US", "GB", "DE"]]),
+            ((F.col("change_index") % 4) + 1).cast("int"),
+        ),
+    )
     .withColumn("email_hash", F.sha2(F.concat(F.lit("synthetic-email-"), F.col("customer_slot")), 256))
     .withColumn("phone_hash", F.sha2(F.concat(F.lit("synthetic-phone-"), F.col("customer_slot")), 256))
     .withColumn("is_synthetic", F.lit(True))
@@ -154,4 +171,3 @@ print(
         "customer_change_count": customer_change_count,
     }
 )
-
