@@ -69,7 +69,11 @@ The demonstration will report fraud recall, false-positive rate, precision at in
 
 > I designed AegisPay as an end-to-end financial-crime decisioning platform rather than a standalone fraud model. It combines reliable streaming data engineering, identity and network analytics, explainable rules and machine learning, governed investigator workflows, monitoring, and controlled multi-environment deployment on Databricks.
 
+## Data contracts and synthetic scenarios
+
+Versioned JSON contracts define payment events and customer CDC changes. The deterministic generator in `src/aegispay/synthetic.py` creates privacy-safe labeled scenarios for legitimate activity, payment fraud, account takeover, mule networks, and layering. These labels exist for engineering validation and must not be presented as real-world model results.
+
 ## Status
 
-Milestone 1 — platform foundation and design — is in progress.
-
+- Milestone 1 — platform foundation and design: complete
+- Milestone 2 — data contracts and synthetic financial events: in progress

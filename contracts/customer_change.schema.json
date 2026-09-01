@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aegispay.example/contracts/customer_change.schema.json",
+  "title": "AegisPay Customer CDC Event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "change_id", "change_timestamp", "operation", "customer_id",
+    "risk_segment", "country", "email_hash", "phone_hash",
+    "source_sequence", "is_synthetic"
+  ],
+  "properties": {
+    "change_id": {"type": "string", "minLength": 1},
+    "change_timestamp": {"type": "string", "format": "date-time"},
+    "operation": {"type": "string", "enum": ["INSERT", "UPDATE", "DELETE"]},
+    "customer_id": {"type": "string", "minLength": 1},
+    "risk_segment": {"type": ["string", "null"], "enum": ["LOW", "MEDIUM", "HIGH", null]},
+    "country": {"type": ["string", "null"], "minLength": 2, "maxLength": 2},
+    "email_hash": {"type": ["string", "null"]},
+    "phone_hash": {"type": ["string", "null"]},
+    "source_sequence": {"type": "integer", "minimum": 1},
+    "is_synthetic": {"const": true}
+  }
+}
+
