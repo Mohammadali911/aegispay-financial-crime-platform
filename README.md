@@ -78,3 +78,4 @@ Versioned JSON contracts define payment events and customer CDC changes. The det
 - Milestone 1 — platform foundation and design: complete
 - Milestone 2 — data contracts and synthetic financial events: complete in DEV
 - Milestone 3 — Bronze streaming ingestion, expectations, quarantine, and customer AUTO CDC: implemented
+- Milestone 4 — Silver deduplication, conformed identities, and transaction-network edges: implemented

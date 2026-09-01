@@ -1,0 +1,21 @@
+resources:
+  pipelines:
+    aegispay_silver:
+      name: AegisPay Silver Conformance
+      catalog: ${var.catalog}
+      schema: aegispay_${var.environment}
+      serverless: true
+      continuous: false
+      channel: CURRENT
+      libraries:
+        - file:
+            path: ../src/pipelines/silver.py
+      configuration:
+        aegispay.source_catalog: ${var.catalog}
+        aegispay.source_schema: aegispay_${var.environment}
+        spark.databricks.delta.withEventTimeOrder.enabled: "true"
+      tags:
+        project: aegispay
+        layer: silver
+        environment: ${var.environment}
+

@@ -28,6 +28,15 @@ tables, parallel quarantine tables retain rejected records and reason codes,
 and AUTO CDC maintains the latest customer state using ordered SCD Type 1
 semantics. Pipeline refreshes run only after the source-generation task succeeds.
 
+## Silver implementation
+
+The separate serverless `AegisPay Silver Conformance` pipeline isolates trusted
+business entities from Bronze evidence. It uses event-time watermarks and the
+contracted event ID to bound streaming deduplication, resolves customer identities
+with deterministic hashes of protected identifiers, and emits aggregated
+customer-account, account-merchant, and customer-device edges for downstream
+graph features. The workflow refreshes Silver only after Bronze succeeds.
+
 ## Environments
 
 - `dev`: developer-owned resources, synthetic data, and paused schedules.

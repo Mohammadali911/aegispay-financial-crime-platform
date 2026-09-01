@@ -149,8 +149,8 @@ if customer_changes.count() != customer_change_count:
 payment_table = f"`{catalog}`.`{schema}`.`synthetic_payment_events`"
 customer_table = f"`{catalog}`.`{schema}`.`synthetic_customer_changes`"
 
-payments.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable(payment_table)
-customer_changes.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable(customer_table)
+payments.write.format("delta").mode("append").saveAsTable(payment_table)
+customer_changes.write.format("delta").mode("append").saveAsTable(customer_table)
 
 summary = (
     spark.table(payment_table)

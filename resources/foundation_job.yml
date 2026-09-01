@@ -31,6 +31,12 @@ resources:
           pipeline_task:
             pipeline_id: ${resources.pipelines.aegispay_bronze.id}
             full_refresh: false
+        - task_key: refresh_silver_pipeline
+          depends_on:
+            - task_key: refresh_bronze_pipeline
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.aegispay_silver.id}
+            full_refresh: false
       environments:
         - environment_key: default
           spec:
