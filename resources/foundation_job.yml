@@ -1,0 +1,18 @@
+resources:
+  jobs:
+    aegispay_foundation_validation:
+      name: AegisPay Foundation Validation
+      description: Validates the deployed environment before financial-crime workloads are enabled.
+      tags:
+        project: aegispay
+        environment: ${var.environment}
+      tasks:
+        - task_key: validate_foundation
+          notebook_task:
+            notebook_path: ../src/notebooks/00_validate_foundation.py
+          environment_key: default
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "5"
+

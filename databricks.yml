@@ -1,0 +1,37 @@
+bundle:
+  name: aegispay-financial-crime-intelligence
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    description: Unity Catalog catalog for AegisPay assets
+    default: workspace
+  environment:
+    description: Logical deployment environment
+    default: dev
+
+targets:
+  dev:
+    mode: development
+    default: true
+    variables:
+      environment: dev
+    workspace:
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+
+  staging:
+    mode: development
+    variables:
+      environment: staging
+    workspace:
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+
+  prod:
+    mode: production
+    variables:
+      environment: prod
+    workspace:
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+
