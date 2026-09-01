@@ -25,6 +25,12 @@ resources:
               payment_event_count: "1000"
               customer_change_count: "200"
           environment_key: default
+        - task_key: refresh_bronze_pipeline
+          depends_on:
+            - task_key: generate_synthetic_landing
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.aegispay_bronze.id}
+            full_refresh: false
       environments:
         - environment_key: default
           spec:

@@ -19,6 +19,15 @@
 - **Gold:** cases, operational KPIs, model monitoring, and executive metrics.
 - **Quarantine:** rejected records with failure reasons and remediation state.
 
+## Bronze implementation
+
+The serverless `AegisPay Bronze Ingestion` Lakeflow pipeline reads the synthetic
+payment and customer-change Delta sources incrementally. Explicit projections
+enforce the contracts, expectations drop invalid rows from trusted Bronze
+tables, parallel quarantine tables retain rejected records and reason codes,
+and AUTO CDC maintains the latest customer state using ordered SCD Type 1
+semantics. Pipeline refreshes run only after the source-generation task succeeds.
+
 ## Environments
 
 - `dev`: developer-owned resources, synthetic data, and paused schedules.
@@ -26,4 +35,3 @@
 - `prod`: controlled schedules, production policies, and approval gates.
 
 Production deployment will not be enabled until its permissions, cost controls, tests, and rollback procedure have been demonstrated.
-

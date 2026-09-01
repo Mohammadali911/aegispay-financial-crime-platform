@@ -1,0 +1,20 @@
+resources:
+  pipelines:
+    aegispay_bronze:
+      name: AegisPay Bronze Ingestion
+      catalog: ${var.catalog}
+      schema: aegispay_${var.environment}
+      serverless: true
+      continuous: false
+      channel: CURRENT
+      libraries:
+        - file:
+            path: ../src/pipelines/bronze.py
+      configuration:
+        aegispay.source_catalog: ${var.catalog}
+        aegispay.source_schema: aegispay_${var.environment}
+      tags:
+        project: aegispay
+        layer: bronze
+        environment: ${var.environment}
+
