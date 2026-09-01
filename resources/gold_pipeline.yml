@@ -1,0 +1,20 @@
+resources:
+  pipelines:
+    aegispay_gold:
+      name: AegisPay Gold Decisioning
+      catalog: ${var.catalog}
+      schema: aegispay_${var.environment}
+      serverless: true
+      continuous: false
+      channel: CURRENT
+      libraries:
+        - file:
+            path: ../src/pipelines/gold.py
+      configuration:
+        aegispay.source_catalog: ${var.catalog}
+        aegispay.source_schema: aegispay_${var.environment}
+        aegispay.policy_version: "2026.09.1"
+      tags:
+        project: aegispay
+        layer: gold
+        environment: ${var.environment}

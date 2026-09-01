@@ -48,6 +48,17 @@ stream and publishes customer behavioral features plus employee/service access-r
 signals with bounded scores and human-readable reason codes. These features are
 inputs to decisioning; synthetic scenario labels remain validation-only fields.
 
+## Gold explainable decisioning
+
+The serverless `AegisPay Gold Decisioning` pipeline combines observable payment,
+customer, behavioral, and device-network features. A versioned policy produces a
+bounded transaction risk score, risk level, recommended action, and reason-code
+array without using synthetic scenario labels as decision inputs. High-risk
+decisions create deterministic investigation cases, privileged or bulk access
+signals create separate access alerts, and daily aggregates support operational
+dashboards. Policy version and decision timestamps make every outcome reproducible
+and auditable.
+
 ## Environments
 
 - `dev`: developer-owned resources, synthetic data, and paused schedules.
