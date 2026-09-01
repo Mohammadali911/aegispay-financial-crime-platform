@@ -16,8 +16,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python -m pip install pytest pyyaml
+      - name: Install project and validation dependencies
+        run: python -m pip install --editable . pytest pyyaml
       - run: pytest -q
       - name: Parse bundle YAML
         run: python -c "import pathlib,yaml; [yaml.safe_load(p.read_text()) for p in pathlib.Path('.').rglob('*.yml')]"
-

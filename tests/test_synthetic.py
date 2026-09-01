@@ -3,7 +3,7 @@ import unittest
 from datetime import datetime, timezone
 from pathlib import Path
 
-from src.aegispay.synthetic import (
+from aegispay.synthetic import (
     SCENARIOS,
     generate_customer_changes,
     generate_payment_events,
@@ -44,4 +44,3 @@ class SyntheticDataTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

@@ -9,6 +9,7 @@ class FoundationTests(unittest.TestCase):
     def test_required_foundation_files_exist(self):
         required = [
             "README.md",
+            "pyproject.toml",
             "databricks.yml",
             "docs/business-case.md",
             "docs/threat-model.md",
