@@ -59,6 +59,20 @@ signals create separate access alerts, and daily aggregates support operational
 dashboards. Policy version and decision timestamps make every outcome reproducible
 and auditable.
 
+## MLflow model lifecycle
+
+The `train_and_register_fraud_model` job task runs only after the Bronze, Silver,
+and Gold refreshes succeed. It creates a deterministic 80/20 split keyed by event
+ID, trains a class-balanced fraud-risk classifier, and logs ROC AUC, PR AUC,
+precision, recall, and F1 to MLflow. The signed model is registered in Unity
+Catalog as `aegispay_fraud_risk_model`, while an append-only evaluation record is
+written to `ml_model_evaluation_metrics` for monitoring and auditability.
+
+Synthetic scenario labels are used only to construct the supervised target for
+this demonstration. They are excluded from the model inputs and from the existing
+Gold policy decision path. Consequently, reported metrics demonstrate the model
+lifecycle and must not be represented as real-world fraud performance.
+
 ## Environments
 
 - `dev`: developer-owned resources, synthetic data, and paused schedules.

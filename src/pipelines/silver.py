@@ -224,7 +224,7 @@ def silver_customer_behavioral_features():
             F.countDistinct("country").alias("observed_country_count"),
             F.sum(F.col("is_anonymized_network").cast("long")).alias("anonymized_network_count"),
             F.sum(F.col("is_untrusted_device").cast("long")).alias("untrusted_device_count"),
-            F.sum((F.col("scenario_label") == "IMPOSSIBLE_TRAVEL").cast("long")).alias("impossible_travel_count"),
+            F.sum((F.upper(F.col("country")) != "CA").cast("long")).alias("impossible_travel_count"),
             F.max("observed_at").alias("last_device_observation_at"),
         )
     )

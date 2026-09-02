@@ -81,4 +81,5 @@ Versioned JSON contracts define payments, customer CDC changes, authentication a
 - Milestone 4 — Silver deduplication, conformed identities, and transaction-network edges: implemented
 - Milestone 5A — authentication, device/IP, and access telemetry contracts and Bronze ingestion: implemented
 - Milestone 5B — behavioral, geographic, anonymized-network, and privileged-access risk features with reason codes: implemented
-- Milestone 5C — Gold explainable transaction decisions, investigation queue, access alerts, and operational metrics: implemented
+- Milestone 5C — explainable Gold policy decisioning, investigation queues, access alerts, and command-center metrics: implemented in DEV
+- Milestone 6A — MLflow fraud-risk training, evaluation, and Unity Catalog model registration: implemented

@@ -20,6 +20,7 @@ class FoundationTests(unittest.TestCase):
             "resources/gold_pipeline.yml",
             "src/notebooks/00_validate_foundation.py",
             "src/notebooks/01_generate_synthetic_landing.py",
+            "src/notebooks/02_train_fraud_model.py",
             "src/pipelines/bronze.py",
             "src/pipelines/silver.py",
             "src/pipelines/gold.py",
@@ -70,6 +71,10 @@ class FoundationTests(unittest.TestCase):
         ]
         self.assertTrue(all(control in pipeline for control in required_controls))
 
+    def test_behavioral_features_do_not_derive_geography_from_training_label(self):
+        pipeline = (ROOT / "src/pipelines/silver.py").read_text()
+        self.assertNotIn('F.col("scenario_label") == "IMPOSSIBLE_TRAVEL"', pipeline)
+
     def test_synthetic_sources_are_append_only(self):
         notebook = (ROOT / "src/notebooks/01_generate_synthetic_landing.py").read_text()
         self.assertEqual(5, notebook.count('.mode("append")'))
@@ -97,6 +102,29 @@ class FoundationTests(unittest.TestCase):
         job = (ROOT / "resources/foundation_job.yml").read_text()
         self.assertIn("task_key: refresh_gold_pipeline", job)
         self.assertIn("pipeline_id: ${resources.pipelines.aegispay_gold.id}", job)
+
+    def test_foundation_job_trains_model_after_gold(self):
+        job = (ROOT / "resources/foundation_job.yml").read_text()
+        self.assertIn("task_key: train_and_register_fraud_model", job)
+        self.assertIn("task_key: refresh_gold_pipeline", job)
+        self.assertIn("02_train_fraud_model.py", job)
+
+    def test_mlflow_training_has_governance_and_leakage_controls(self):
+        notebook = (ROOT / "src/notebooks/02_train_fraud_model.py").read_text()
+        required_controls = [
+            'mlflow.set_registry_uri("databricks-uc")',
+            "registered_model_name=REGISTERED_MODEL_NAME",
+            '"data_classification": "synthetic"',
+            '"split_strategy": "xxhash64(event_id): 80/20"',
+            "ml_model_evaluation_metrics",
+            "roc_auc",
+            "pr_auc",
+            "precision",
+            "recall",
+            "f1",
+        ]
+        self.assertTrue(all(control in notebook for control in required_controls))
+        self.assertNotIn('"scenario_label",\n]', notebook)
 
 
 if __name__ == "__main__":
