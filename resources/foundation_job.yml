@@ -57,6 +57,17 @@ resources:
               model_name: aegispay_fraud_risk_model
               model_version: "2026.09.1"
           environment_key: default
+        - task_key: score_and_explain_fraud_model
+          depends_on:
+            - task_key: train_and_register_fraud_model
+          notebook_task:
+            notebook_path: ../src/notebooks/03_score_and_explain_fraud_model.py
+            base_parameters:
+              catalog: ${var.catalog}
+              environment: ${var.environment}
+              model_name: aegispay_fraud_risk_model
+              model_alias: Champion
+          environment_key: default
       environments:
         - environment_key: default
           spec:

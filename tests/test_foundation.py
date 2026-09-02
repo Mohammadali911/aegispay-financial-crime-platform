@@ -21,6 +21,7 @@ class FoundationTests(unittest.TestCase):
             "src/notebooks/00_validate_foundation.py",
             "src/notebooks/01_generate_synthetic_landing.py",
             "src/notebooks/02_train_fraud_model.py",
+            "src/notebooks/03_score_and_explain_fraud_model.py",
             "src/pipelines/bronze.py",
             "src/pipelines/silver.py",
             "src/pipelines/gold.py",
@@ -128,6 +129,29 @@ class FoundationTests(unittest.TestCase):
         ]
         self.assertTrue(all(control in notebook for control in required_controls))
         self.assertNotIn('"scenario_label",\n]', notebook)
+
+    def test_model_scoring_has_explanations_policy_comparison_and_feedback(self):
+        notebook = (ROOT / "src/notebooks/03_score_and_explain_fraud_model.py").read_text()
+        required_controls = [
+            "get_model_version_by_alias",
+            "predict_proba",
+            "ml_scored_transactions",
+            "explanation_signals",
+            "model_policy_action_agreement",
+            "model_policy_risk_gap",
+            "ml_analyst_feedback",
+            "CONFIRMED_FRAUD, FALSE_POSITIVE, or NEEDS_MORE_REVIEW",
+            "delta.enableChangeDataFeed",
+            "ml_scoring_metrics",
+        ]
+        self.assertTrue(all(control in notebook for control in required_controls))
+        self.assertNotIn("scenario_label", notebook)
+
+    def test_foundation_job_scores_champion_model_after_training(self):
+        job = (ROOT / "resources/foundation_job.yml").read_text()
+        self.assertIn("task_key: score_and_explain_fraud_model", job)
+        self.assertIn("03_score_and_explain_fraud_model.py", job)
+        self.assertIn("model_alias: Champion", job)
 
 
 if __name__ == "__main__":

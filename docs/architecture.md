@@ -73,6 +73,15 @@ this demonstration. They are excluded from the model inputs and from the existin
 Gold policy decision path. Consequently, reported metrics demonstrate the model
 lifecycle and must not be represented as real-world fraud performance.
 
+The downstream `score_and_explain_fraud_model` task loads only the governed
+`Champion` alias. It writes transaction probabilities, risk bands, observable
+input-signal explanations, and policy-versus-model comparisons to
+`ml_scored_transactions`; aggregated monitoring data is published to
+`ml_scoring_metrics`. Explanations describe the elevated input evidence present
+for a score and are not represented as causal claims or SHAP values. Investigator
+outcomes are stored separately in the append-only, change-data-feed-enabled
+`ml_analyst_feedback` table for monitoring and future retraining.
+
 ## Environments
 
 - `dev`: developer-owned resources, synthetic data, and paused schedules.
