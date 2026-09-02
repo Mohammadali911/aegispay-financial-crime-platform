@@ -31,7 +31,7 @@ SCHEMA = f"aegispay_{ENVIRONMENT}"
 MODEL_NAME = dbutils.widgets.get("model_name")
 MODEL_VERSION = dbutils.widgets.get("model_version")
 REGISTERED_MODEL_NAME = f"{CATALOG}.{SCHEMA}.{MODEL_NAME}"
-EXPERIMENT_NAME = f"/Shared/aegispay/{ENVIRONMENT}/fraud-risk-training"
+EXPERIMENT_NAME = f"/Shared/aegispay-{ENVIRONMENT}-fraud-risk-training"
 
 NUMERIC_FEATURES = [
     "amount",
@@ -203,4 +203,3 @@ spark.createDataFrame(pd.DataFrame([evaluation_row])).write.mode("append").saveA
 )
 
 display(spark.createDataFrame(pd.DataFrame([evaluation_row])))
-
