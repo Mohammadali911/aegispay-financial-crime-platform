@@ -122,6 +122,7 @@ class FoundationTests(unittest.TestCase):
             "precision",
             "recall",
             "f1",
+            "pd.to_numeric",
         ]
         self.assertTrue(all(control in notebook for control in required_controls))
         self.assertNotIn('"scenario_label",\n]', notebook)

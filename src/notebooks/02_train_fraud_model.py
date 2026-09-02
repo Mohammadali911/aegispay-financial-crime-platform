@@ -89,6 +89,12 @@ test_pdf = training_frame.filter(F.col("split_bucket") >= 8).drop("split_bucket"
 if train_pdf.empty or test_pdf.empty or test_pdf["label"].nunique() != 2:
     raise ValueError("Deterministic train/test split must contain test rows from both classes")
 
+# Spark DECIMAL values arrive in pandas as Python Decimal objects. Normalize all
+# numeric model inputs so MLflow can serialize the input example as JSON.
+for column in NUMERIC_FEATURES:
+    train_pdf[column] = pd.to_numeric(train_pdf[column], errors="coerce").astype(float)
+    test_pdf[column] = pd.to_numeric(test_pdf[column], errors="coerce").astype(float)
+
 
 # COMMAND ----------
 
