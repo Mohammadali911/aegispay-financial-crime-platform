@@ -68,6 +68,15 @@ resources:
               model_name: aegispay_fraud_risk_model
               model_alias: Champion
           environment_key: default
+        - task_key: apply_governance_controls
+          depends_on:
+            - task_key: score_and_explain_fraud_model
+          notebook_task:
+            notebook_path: ../src/notebooks/04_apply_governance_controls.py
+            base_parameters:
+              catalog: ${var.catalog}
+              environment: ${var.environment}
+          environment_key: default
       environments:
         - environment_key: default
           spec:

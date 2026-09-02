@@ -84,3 +84,4 @@ Versioned JSON contracts define payments, customer CDC changes, authentication a
 - Milestone 5C — explainable Gold policy decisioning, investigation queues, access alerts, and command-center metrics: implemented in DEV
 - Milestone 6A — MLflow fraud-risk training, evaluation, and Unity Catalog model registration: implemented
 - Milestone 6B — governed Champion scoring, observable-signal explanations, policy comparison, and analyst feedback: implemented
+- Milestone 7A — least-privilege inventory and pseudonymized investigator access view: implemented

@@ -82,6 +82,21 @@ for a score and are not represented as causal claims or SHAP values. Investigato
 outcomes are stored separately in the append-only, change-data-feed-enabled
 `ml_analyst_feedback` table for monitoring and future retraining.
 
+## Governed investigator access
+
+The `secure_investigator_transactions` view is the intended analyst-facing
+interface for scored payments. It excludes every direct transaction, customer,
+account, merchant, device, and source-event identifier and exposes stable
+environment-scoped tokens instead. This preserves investigation joins while
+reducing unnecessary identity disclosure. The development implementation uses a
+deterministic synthetic-data namespace; production must use a secret-backed HMAC
+or enterprise tokenization service with controlled re-identification.
+
+The `governance_control_inventory` table records evidence for least privilege,
+synthetic-data classification, protected investigator access, model approval,
+and analyst-feedback auditability. The DEV schema intentionally has no explicit
+grants because this trial workspace has no separate governed analyst groups.
+
 ## Environments
 
 - `dev`: developer-owned resources, synthetic data, and paused schedules.

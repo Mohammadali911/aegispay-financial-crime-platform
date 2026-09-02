@@ -22,6 +22,7 @@ class FoundationTests(unittest.TestCase):
             "src/notebooks/01_generate_synthetic_landing.py",
             "src/notebooks/02_train_fraud_model.py",
             "src/notebooks/03_score_and_explain_fraud_model.py",
+            "src/notebooks/04_apply_governance_controls.py",
             "src/pipelines/bronze.py",
             "src/pipelines/silver.py",
             "src/pipelines/gold.py",
@@ -152,6 +153,41 @@ class FoundationTests(unittest.TestCase):
         self.assertIn("task_key: score_and_explain_fraud_model", job)
         self.assertIn("03_score_and_explain_fraud_model.py", job)
         self.assertIn("model_alias: Champion", job)
+
+    def test_protected_investigator_view_excludes_direct_identifiers(self):
+        notebook = (ROOT / "src/notebooks/04_apply_governance_controls.py").read_text()
+        required_controls = [
+            "secure_investigator_transactions",
+            "governance_control_inventory",
+            "Pseudonymized investigator access",
+            "Least privilege",
+            "sha2",
+            "transaction_token",
+            "customer_token",
+            "account_token",
+            "merchant_token",
+            "device_token",
+            "secret-backed HMAC or enterprise tokenization service",
+        ]
+        self.assertTrue(all(control in notebook for control in required_controls))
+
+        protected_selection = notebook.split("CREATE OR REPLACE VIEW", 1)[1].split(
+            'FROM {SOURCE_TABLE}', 1
+        )[0]
+        for direct_identifier in [
+            '"transaction_id"',
+            '"customer_id"',
+            '"account_id"',
+            '"merchant_id"',
+            '"device_id"',
+            '"event_id"',
+        ]:
+            self.assertNotIn(f"\n    {direct_identifier},", protected_selection)
+
+    def test_foundation_job_applies_governance_after_scoring(self):
+        job = (ROOT / "resources/foundation_job.yml").read_text()
+        self.assertIn("task_key: apply_governance_controls", job)
+        self.assertIn("04_apply_governance_controls.py", job)
 
 
 if __name__ == "__main__":
