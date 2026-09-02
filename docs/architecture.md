@@ -97,6 +97,16 @@ synthetic-data classification, protected investigator access, model approval,
 and analyst-feedback auditability. The DEV schema intentionally has no explicit
 grants because this trial workspace has no separate governed analyst groups.
 
+## Operational health and recovery
+
+The final `validate_operational_health` task reconciles scored and protected row
+counts, validates probability bounds and freshness, checks model-quality and
+model-policy agreement thresholds, and monitors quarantine rates. It persists
+every result to `operational_health_metrics` before raising a critical failure so
+operators retain queryable evidence. The bundle includes a daily schedule in the
+paused state for DEV cost safety. Recovery and rollback procedures are defined in
+`docs/operations-runbook.md`.
+
 ## Environments
 
 - `dev`: developer-owned resources, synthetic data, and paused schedules.

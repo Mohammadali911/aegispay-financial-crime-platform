@@ -6,6 +6,10 @@ resources:
       tags:
         project: aegispay
         environment: ${var.environment}
+      schedule:
+        quartz_cron_expression: "0 0 6 * * ?"
+        timezone_id: America/Toronto
+        pause_status: PAUSED
       tasks:
         - task_key: validate_foundation
           notebook_task:
@@ -73,6 +77,15 @@ resources:
             - task_key: score_and_explain_fraud_model
           notebook_task:
             notebook_path: ../src/notebooks/04_apply_governance_controls.py
+            base_parameters:
+              catalog: ${var.catalog}
+              environment: ${var.environment}
+          environment_key: default
+        - task_key: validate_operational_health
+          depends_on:
+            - task_key: apply_governance_controls
+          notebook_task:
+            notebook_path: ../src/notebooks/05_validate_operational_health.py
             base_parameters:
               catalog: ${var.catalog}
               environment: ${var.environment}

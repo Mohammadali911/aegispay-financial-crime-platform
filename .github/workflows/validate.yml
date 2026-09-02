@@ -19,5 +19,7 @@ jobs:
       - name: Install project and validation dependencies
         run: python -m pip install --editable . pytest pyyaml
       - run: pytest -q
+      - name: Compile Python sources
+        run: python -m compileall -q src
       - name: Parse bundle YAML
         run: python -c "import pathlib,yaml; [yaml.safe_load(p.read_text()) for p in pathlib.Path('.').rglob('*.yml')]"

@@ -14,6 +14,7 @@ class FoundationTests(unittest.TestCase):
             "docs/business-case.md",
             "docs/threat-model.md",
             "docs/architecture.md",
+            "docs/operations-runbook.md",
             "resources/foundation_job.yml",
             "resources/bronze_pipeline.yml",
             "resources/silver_pipeline.yml",
@@ -23,6 +24,7 @@ class FoundationTests(unittest.TestCase):
             "src/notebooks/02_train_fraud_model.py",
             "src/notebooks/03_score_and_explain_fraud_model.py",
             "src/notebooks/04_apply_governance_controls.py",
+            "src/notebooks/05_validate_operational_health.py",
             "src/pipelines/bronze.py",
             "src/pipelines/silver.py",
             "src/pipelines/gold.py",
@@ -188,6 +190,29 @@ class FoundationTests(unittest.TestCase):
         job = (ROOT / "resources/foundation_job.yml").read_text()
         self.assertIn("task_key: apply_governance_controls", job)
         self.assertIn("04_apply_governance_controls.py", job)
+
+    def test_operational_health_controls_and_recovery_are_defined(self):
+        notebook = (ROOT / "src/notebooks/05_validate_operational_health.py").read_text()
+        required_controls = [
+            "operational_health_metrics", "Scored transaction availability",
+            "Fraud probability bounds", "Scoring freshness",
+            "Model-policy action agreement", "Latest model evaluation",
+            "Quarantine rate", "Protected investigator view availability",
+            "critical_failures",
+        ]
+        self.assertTrue(all(control in notebook for control in required_controls))
+
+        runbook = (ROOT / "docs/operations-runbook.md").read_text()
+        self.assertIn("Repair run", runbook)
+        self.assertIn("Champion", runbook)
+        self.assertIn("Rollback procedure", runbook)
+
+    def test_schedule_is_cost_safe_and_health_is_final_task(self):
+        job = (ROOT / "resources/foundation_job.yml").read_text()
+        self.assertIn('quartz_cron_expression: "0 0 6 * * ?"', job)
+        self.assertIn("pause_status: PAUSED", job)
+        self.assertIn("task_key: validate_operational_health", job)
+        self.assertIn("05_validate_operational_health.py", job)
 
 
 if __name__ == "__main__":
