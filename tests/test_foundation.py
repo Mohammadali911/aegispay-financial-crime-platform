@@ -15,6 +15,8 @@ class FoundationTests(unittest.TestCase):
             "docs/threat-model.md",
             "docs/architecture.md",
             "docs/operations-runbook.md",
+            "docs/demo-walkthrough.md",
+            "docs/interview-guide.md",
             "resources/foundation_job.yml",
             "resources/bronze_pipeline.yml",
             "resources/silver_pipeline.yml",
