@@ -123,6 +123,8 @@ class FoundationTests(unittest.TestCase):
             "recall",
             "f1",
             "pd.to_numeric",
+            "SERIALIZATION_FORMAT_CLOUDPICKLE",
+            "load only from the governed AegisPay registry",
         ]
         self.assertTrue(all(control in notebook for control in required_controls))
         self.assertNotIn('"scenario_label",\n]', notebook)

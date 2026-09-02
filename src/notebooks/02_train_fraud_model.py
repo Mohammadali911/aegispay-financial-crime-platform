@@ -169,6 +169,7 @@ with mlflow.start_run(run_name=f"fraud-risk-{MODEL_VERSION}") as run:
             "project": "aegispay",
             "environment": ENVIRONMENT,
             "data_classification": "synthetic",
+            "model_serialization": "cloudpickle; load only from the governed AegisPay registry",
             "intended_use": "portfolio demonstration; not production financial advice",
         }
     )
@@ -181,6 +182,7 @@ with mlflow.start_run(run_name=f"fraud-risk-{MODEL_VERSION}") as run:
         registered_model_name=REGISTERED_MODEL_NAME,
         signature=signature,
         input_example=input_example,
+        serialization_format=mlflow.sklearn.SERIALIZATION_FORMAT_CLOUDPICKLE,
     )
     run_id = run.info.run_id
 
